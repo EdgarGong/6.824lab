@@ -14,7 +14,7 @@ import "log"
 import "io/ioutil"
 import "sort"
 
-// for sorting by key.
+// ByKey for sorting by key.
 type ByKey []mr.KeyValue
 
 // for sorting by key.
@@ -55,9 +55,7 @@ func main() {
 	// intermediate data is in one place, intermediate[],
 	// rather than being partitioned into NxM buckets.
 	//
-
 	sort.Sort(ByKey(intermediate))
-
 	oname := "mr-out-0"
 	ofile, _ := os.Create(oname)
 
