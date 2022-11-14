@@ -595,6 +595,8 @@ func (cfg *config) one(cmd interface{}, expectedServers int, retry bool) int {
 						// and it was the command we submitted.
 						return index
 					}
+				} else {
+					//fmt.Printf("nd: %d expectedServers: %d cmd1: %d\n", nd, expectedServers, cmd1)
 				}
 				time.Sleep(20 * time.Millisecond)
 			}

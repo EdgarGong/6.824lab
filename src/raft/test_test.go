@@ -141,8 +141,12 @@ func TestBasicAgree2B(t *testing.T) {
 
 	cfg.begin("Test (2B): basic agreement")
 
+	cfg.checkOneLeader()
+
 	iters := 3
 	for index := 1; index < iters+1; index++ {
+		DPrintf("******commit %d******", index)
+
 		nd, _ := cfg.nCommitted(index)
 		if nd > 0 {
 			t.Fatalf("some have committed before Start()")
@@ -296,7 +300,9 @@ func TestFailAgree2B(t *testing.T) {
 
 	// disconnect one follower from the network.
 	leader := cfg.checkOneLeader()
-	cfg.disconnect((leader + 1) % servers)
+	dis := (leader + 1) % servers
+	cfg.disconnect(dis)
+	fmt.Println("******disconnect******")
 
 	// the leader and remaining follower should be
 	// able to agree despite the disconnected follower.
@@ -308,11 +314,17 @@ func TestFailAgree2B(t *testing.T) {
 
 	// re-connect
 	cfg.connect((leader + 1) % servers)
+	fmt.Printf("******%d reconnect******\n", dis)
+	//Debug = true
+	DPrintf("******reconnect******")
 
 	// the full set of servers should preserve
 	// previous agreements, and be able to agree
 	// on new commands.
+
 	cfg.one(106, servers, true)
+	fmt.Println("******sleep******")
+	DPrintf("******sleep******")
 	time.Sleep(RaftElectionTimeout)
 	cfg.one(107, servers, true)
 
@@ -330,6 +342,8 @@ func TestFailNoAgree2B(t *testing.T) {
 
 	// 3 of 5 followers disconnect
 	leader := cfg.checkOneLeader()
+
+	fmt.Printf("****** leader: %d    3 discon******\n", leader)
 	cfg.disconnect((leader + 1) % servers)
 	cfg.disconnect((leader + 2) % servers)
 	cfg.disconnect((leader + 3) % servers)
@@ -349,6 +363,7 @@ func TestFailNoAgree2B(t *testing.T) {
 		t.Fatalf("%v committed but no majority", n)
 	}
 
+	fmt.Println("******recon******")
 	// repair
 	cfg.connect((leader + 1) % servers)
 	cfg.connect((leader + 2) % servers)
@@ -423,10 +438,12 @@ loop:
 		failed := false
 		cmds := []int{}
 		for index := range is {
+			//fmt.Printf("******before wait %d******\n", index)
 			cmd := cfg.wait(index, servers, term)
+			//fmt.Printf("******after wait %d******\n", index)
 			if ix, ok := cmd.(int); ok {
 				if ix == -1 {
-					// peers have moved on to later terms
+					// peers have moved on to later terms,
 					// so we can't expect all Start()s to
 					// have succeeded
 					failed = true
