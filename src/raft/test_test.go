@@ -302,7 +302,7 @@ func TestFailAgree2B(t *testing.T) {
 	leader := cfg.checkOneLeader()
 	dis := (leader + 1) % servers
 	cfg.disconnect(dis)
-	fmt.Println("******disconnect******")
+	DPrintln("******disconnect******")
 
 	// the leader and remaining follower should be
 	// able to agree despite the disconnected follower.
@@ -314,16 +314,14 @@ func TestFailAgree2B(t *testing.T) {
 
 	// re-connect
 	cfg.connect((leader + 1) % servers)
-	fmt.Printf("******%d reconnect******\n", dis)
+	DPrintf("******%d reconnect******", dis)
 	//Debug = true
-	DPrintf("******reconnect******")
 
 	// the full set of servers should preserve
 	// previous agreements, and be able to agree
 	// on new commands.
 
 	cfg.one(106, servers, true)
-	fmt.Println("******sleep******")
 	DPrintf("******sleep******")
 	time.Sleep(RaftElectionTimeout)
 	cfg.one(107, servers, true)
@@ -343,7 +341,7 @@ func TestFailNoAgree2B(t *testing.T) {
 	// 3 of 5 followers disconnect
 	leader := cfg.checkOneLeader()
 
-	fmt.Printf("****** leader: %d    3 discon******\n", leader)
+	DPrintf("****** leader: %d    3 discon******", leader)
 	cfg.disconnect((leader + 1) % servers)
 	cfg.disconnect((leader + 2) % servers)
 	cfg.disconnect((leader + 3) % servers)
@@ -363,7 +361,7 @@ func TestFailNoAgree2B(t *testing.T) {
 		t.Fatalf("%v committed but no majority", n)
 	}
 
-	fmt.Println("******recon******")
+	DPrintln("******recon******")
 	// repair
 	cfg.connect((leader + 1) % servers)
 	cfg.connect((leader + 2) % servers)
@@ -438,9 +436,9 @@ loop:
 		failed := false
 		cmds := []int{}
 		for index := range is {
-			//fmt.Printf("******before wait %d******\n", index)
+			//DPrintf("******before wait %d******", index)
 			cmd := cfg.wait(index, servers, term)
-			//fmt.Printf("******after wait %d******\n", index)
+			//DPrintf("******after wait %d******", index)
 			if ix, ok := cmd.(int); ok {
 				if ix == -1 {
 					// peers have moved on to later terms,
