@@ -716,6 +716,7 @@ func TestPersist12C(t *testing.T) {
 	cfg.one(11, servers, true)
 
 	// crash and re-start all
+	DPrintf("******crash and re-start all******")
 	for i := 0; i < servers; i++ {
 		cfg.start1(i, cfg.applier)
 	}
@@ -723,6 +724,8 @@ func TestPersist12C(t *testing.T) {
 		cfg.disconnect(i)
 		cfg.connect(i)
 	}
+
+	DPrintf("******after crash and re-start all******")
 
 	cfg.one(12, servers, true)
 
@@ -1128,7 +1131,9 @@ func TestReliableChurn2C(t *testing.T) {
 }
 
 func TestUnreliableChurn2C(t *testing.T) {
+
 	internalChurn(t, true)
+
 }
 
 const MAXLOGSIZE = 2000
