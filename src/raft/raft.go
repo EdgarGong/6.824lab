@@ -465,6 +465,12 @@ func (rf *Raft) sendAppendEntries(lenServers, term int, entireLog Log, nextIndex
 			cntMu.Unlock()
 			return
 		}
+
+		if term < rf.CurrentTerm {
+			rf.mu.Unlock()
+			cntMu.Unlock()
+			return
+		}
 		rf.mu.Unlock()
 		cond.Wait()
 	}
