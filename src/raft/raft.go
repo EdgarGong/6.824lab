@@ -501,7 +501,7 @@ func (rf *Raft) sendAppendEntries(lenServers, term int, entireLog Log, nextIndex
 			rf.applyCh <- applyMsg
 		}
 		rf.Log.CommittedIndex = len(entireLog.Entries) - 1
-		DPrintf("[%d] lead commit", rf.me)
+		DPrintf("[%d] lead commit committedIndex: %d", rf.me, rf.Log.CommittedIndex)
 		DPrintln(rf.Log.Entries)
 		rf.mu.Unlock()
 
@@ -733,7 +733,7 @@ func (rf *Raft) startElection() {
 	if cnt >= (lenServers+1)/2 {
 		// election Success, become leader
 		rf.mu.Lock()
-		//DPrintf("[%d] win the election in term %d", rf.me, rf.CurrentTerm)
+		DPrintf("[%d] win the election in term %d", rf.me, rf.CurrentTerm)
 		rf.State = StateLeader
 		rf.leader = rf.me
 
@@ -855,6 +855,7 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 			rf.persist()
 		} else {
 			i := 0
+			//args.PrevLogIndex = 37
 			for ; i < len(args.Entries); i++ {
 				if i+args.PrevLogIndex+1 < len(rf.Log.Entries) {
 					//如果一个已经存在的条目和新条目（译者注：即刚刚接收到的日志条目）
@@ -899,7 +900,7 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 				}
 				rf.applyCh <- applyMsg
 			}
-			DPrintf("[%d] follower commit ", rf.me)
+			DPrintf("[%d] follower commit  committedIndex: %d", rf.me, rf.Log.CommittedIndex)
 			DPrintln(rf.Log.Entries)
 		}
 
