@@ -141,7 +141,7 @@ func (rf *Raft) GetState() (int, bool) {
 //
 func (rf *Raft) persist() {
 	// Your code here (2C).
-	DPrintf("%d persist", rf.me)
+	//DPrintf("%d persist", rf.me)
 	// Example:
 	w := new(bytes.Buffer)
 	e := labgob.NewEncoder(w)

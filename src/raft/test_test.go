@@ -845,7 +845,7 @@ func TestFigure82C(t *testing.T) {
 	servers := 5
 	cfg := make_config(t, servers, false, false)
 	defer cfg.cleanup()
-
+	
 	cfg.begin("Test (2C): Figure 8")
 
 	cfg.one(rand.Int(), 1, true)
