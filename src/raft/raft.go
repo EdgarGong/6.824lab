@@ -733,7 +733,20 @@ func (rf *Raft) startElection() {
 	if cnt >= (lenServers+1)/2 {
 		// election Success, become leader
 		rf.mu.Lock()
-		DPrintf("[%d] win the election in term %d", rf.me, rf.CurrentTerm)
+
+		if term != rf.CurrentTerm {
+			rf.mu.Unlock()
+			cntMu.Unlock()
+			return
+		}
+
+		if rf.State == StateFollower {
+			rf.mu.Unlock()
+			cntMu.Unlock()
+			return
+		}
+
+		DPrintf("[%d] win the election in term %d", rf.me, term)
 		rf.State = StateLeader
 		rf.leader = rf.me
 
