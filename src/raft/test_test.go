@@ -845,7 +845,7 @@ func TestFigure82C(t *testing.T) {
 	servers := 5
 	cfg := make_config(t, servers, false, false)
 	defer cfg.cleanup()
-	
+
 	cfg.begin("Test (2C): Figure 8")
 
 	cfg.one(rand.Int(), 1, true)
@@ -863,6 +863,7 @@ func TestFigure82C(t *testing.T) {
 		}
 
 		if (rand.Int() % 1000) < 100 {
+			//ms := rand.Int63() % 500
 			ms := rand.Int63() % (int64(RaftElectionTimeout/time.Millisecond) / 2)
 			time.Sleep(time.Duration(ms) * time.Millisecond)
 		} else {

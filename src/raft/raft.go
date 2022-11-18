@@ -478,6 +478,16 @@ func (rf *Raft) sendAppendEntries(lenServers, term int, entireLog Log, nextIndex
 			rf.mu.Unlock()
 			return
 		}
+		if term < rf.CurrentTerm {
+			rf.mu.Unlock()
+			return
+		}
+		if entireLog.Entries[len(entireLog.Entries)-1].Term != rf.CurrentTerm {
+			//为了消除图 8 里描述的情况，Raft 永远不会通过计算副本数目的方式去提交一个之前任期内的日志条目。
+			//只有领导人当前任期里的日志条目通过计算副本数目可以被提交
+			rf.mu.Unlock()
+			return
+		}
 		for i := rf.Log.CommittedIndex + 1; i <= len(entireLog.Entries)-1; i++ {
 			applyMsg := ApplyMsg{
 				CommandValid: true,
