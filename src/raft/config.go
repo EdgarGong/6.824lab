@@ -595,9 +595,11 @@ func (cfg *config) one(cmd interface{}, expectedServers int, retry bool) int {
 					if cmd1 == cmd {
 						// and it was the command we submitted.
 						return index
+					} else {
+						DPrintf("cmd1(%d) != cmd(%d)", cmd1, cmd)
 					}
 				} else {
-					//fmt.Printf("nd: %d expectedServers: %d cmd1: %d\n", nd, expectedServers, cmd1)
+					DPrintf("nd: %d expectedServers: %d cmd1: %d", nd, expectedServers, cmd1)
 				}
 				time.Sleep(20 * time.Millisecond)
 			}

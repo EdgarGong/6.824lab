@@ -749,7 +749,7 @@ func (rf *Raft) startElection() {
 			return
 		}
 
-		if rf.State == StateFollower {
+		if rf.State != StateCandidate {
 			rf.mu.Unlock()
 			cntMu.Unlock()
 			return
@@ -842,7 +842,7 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 		rf.persist()
 		rf.lastHeartbeat = time.Now()
 		rf.electionTimeout = resetElectionTimeout()
-		
+
 		if len(rf.Log.Entries) == 0 && args.PrevLogIndex != 0 {
 			DPrintf("[%d] follower's Log shorter than the leader %d and follower's Log is empty", rf.me, args.LeaderId)
 			reply.Success = false
@@ -1145,11 +1145,11 @@ func (rf *Raft) ticker() {
 }
 
 func resetElectionTimeout() time.Duration {
-	//TODO: [7*heartbeatInterval, 14*heartbeatInterval] now, to be changed
-	n, _ := rand.Int(rand.Reader, big.NewInt(7000))
+	//TODO: [4*heartbeatInterval, 10*heartbeatInterval] now, to be changed
+	n, _ := rand.Int(rand.Reader, big.NewInt(6000))
 	randF := float64(n.Int64()) / 1000
 	//DPrintln(randF * heartbeatInterval)
-	ret := time.Duration(7*heartbeatInterval+randF*heartbeatInterval) * time.Millisecond
+	ret := time.Duration(4*heartbeatInterval+randF*heartbeatInterval) * time.Millisecond
 	return ret
 }
 
