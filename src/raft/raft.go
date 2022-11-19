@@ -692,8 +692,10 @@ func (rf *Raft) startElection() {
 			if !ok {
 				//log.Fatalf("RPC error when send RequestVote from %d to %d\n", rf.me, server)
 				//DPrintf("ERROR! RPC error when send RequestVote from %d to %d", rf.me, server)
+				cntMu.Lock()
 				finished++
 				cond.Broadcast()
+				cntMu.Unlock()
 				return
 			}
 			cntMu.Lock()
@@ -703,15 +705,16 @@ func (rf *Raft) startElection() {
 				cnt++
 			} else {
 				//DPrintf("[%d] receive disagree from peer [%d]", rf.me, server)
+				rf.mu.Lock()
 				if reply.Term != 0 && reply.Term > rf.CurrentTerm {
 					// find a bigger term, become follower
-					rf.mu.Lock()
 					rf.State = StateFollower
 					rf.CurrentTerm = reply.Term
 					rf.persist()
 					rf.mu.Unlock()
 					return
 				}
+				rf.mu.Unlock()
 			}
 			finished++
 			cond.Broadcast()
