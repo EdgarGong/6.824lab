@@ -650,8 +650,8 @@ func (rf *Raft) startElection() {
 	rf.VotedFor = rf.me
 	rf.persist()
 	//DPrintf("[%d] start a new round of election at Term %d", rf.me, rf.CurrentTerm)
-	//DPrintf("[%d] start a new round of election at Term %d", rf.me, rf.CurrentTerm)
-	//DPrintf("[%d] timeout: %d", rf.me, rf.electionTimeout)
+	DPrintf("[%d] start a new round of election at Term %d", rf.me, rf.CurrentTerm)
+	DPrintf("[%d] timeout: %d", rf.me, rf.electionTimeout)
 	rf.lastHeartbeat = time.Now()
 	rf.electionTimeout = resetElectionTimeout()
 
@@ -769,8 +769,7 @@ func (rf *Raft) startElection() {
 		// TODO:broadcast heartbeats or not???
 		//DPrintf("broadcast heartbeats after election success")
 
-		//not sending out heartbeats immediately after winning an election
-		//rf.broadcastHeartbeat()
+		rf.broadcastHeartbeat()
 	}
 	cntMu.Unlock()
 }
@@ -841,6 +840,9 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 		rf.leader = args.LeaderId
 		rf.CurrentTerm = args.Term
 		rf.persist()
+		rf.lastHeartbeat = time.Now()
+		rf.electionTimeout = resetElectionTimeout()
+		
 		if len(rf.Log.Entries) == 0 && args.PrevLogIndex != 0 {
 			DPrintf("[%d] follower's Log shorter than the leader %d and follower's Log is empty", rf.me, args.LeaderId)
 			reply.Success = false
@@ -1143,11 +1145,11 @@ func (rf *Raft) ticker() {
 }
 
 func resetElectionTimeout() time.Duration {
-	//TODO: [5*heartbeatInterval, 12*heartbeatInterval] now, to be changed
-	n, _ := rand.Int(rand.Reader, big.NewInt(9000))
+	//TODO: [7*heartbeatInterval, 14*heartbeatInterval] now, to be changed
+	n, _ := rand.Int(rand.Reader, big.NewInt(7000))
 	randF := float64(n.Int64()) / 1000
 	//DPrintln(randF * heartbeatInterval)
-	ret := time.Duration(5*heartbeatInterval+randF*heartbeatInterval) * time.Millisecond
+	ret := time.Duration(7*heartbeatInterval+randF*heartbeatInterval) * time.Millisecond
 	return ret
 }
 
