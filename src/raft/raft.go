@@ -768,7 +768,9 @@ func (rf *Raft) startElection() {
 
 		// TODO:broadcast heartbeats or not???
 		//DPrintf("broadcast heartbeats after election success")
-		rf.broadcastHeartbeat()
+
+		//not sending out heartbeats immediately after winning an election
+		//rf.broadcastHeartbeat()
 	}
 	cntMu.Unlock()
 }
@@ -1141,11 +1143,11 @@ func (rf *Raft) ticker() {
 }
 
 func resetElectionTimeout() time.Duration {
-	//TODO: [3*heartbeatInterval, 12*heartbeatInterval] now, to be changed
+	//TODO: [5*heartbeatInterval, 12*heartbeatInterval] now, to be changed
 	n, _ := rand.Int(rand.Reader, big.NewInt(9000))
 	randF := float64(n.Int64()) / 1000
 	//DPrintln(randF * heartbeatInterval)
-	ret := time.Duration(3*heartbeatInterval+randF*heartbeatInterval) * time.Millisecond
+	ret := time.Duration(5*heartbeatInterval+randF*heartbeatInterval) * time.Millisecond
 	return ret
 }
 
